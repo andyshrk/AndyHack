@@ -15,6 +15,10 @@ let g:gutentags_ctags_tagfile = '.tags'
 let s:vim_tags = expand('~/.cache/tags')
 let g:gutentags_cache_dir = s:vim_tags
 
+if isdirectory("kernel/") && isdirectory("mm/")
+    let g:gutentags_file_list_command = 'find arch/arm* arch/riscv block crypto drivers fs include init ipc kernel lib mm net security sound virt'
+endif
+
 " 检测 ~/.cache/tags 不存在就新建 "
 if !isdirectory(s:vim_tags)
     silent! call mkdir(s:vim_tags, 'p')
