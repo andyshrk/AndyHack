@@ -78,9 +78,10 @@ _op_copy_c_dp_neon(unsigned int c, unsigned int *d, int l) {
 
 	AP "done:\n\t"
 		// Output
-		: [tmp] "=r" (tmp)
+		: [tmp] "=r" (tmp) , [e] "+r" (e), [d] "+r" (d)
+
 		// Input
-		: [c] "r" (c), [e] "r" (e), [d] "r" (d)
+		: [c] "r" (c)
 		// Clobbered
 		: "q0","q1","memory"
 
