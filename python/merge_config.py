@@ -6,56 +6,93 @@ import subprocess
 import sys
 
 AUTO_CONF_PATH = 'include/config/auto.conf'
+SPL_CONF_PATH = 'spl/include/autoconf.mk'
 
-def get_matched_defconfig(line):
-    """Get the defconfig files that match a pattern
+parser = optparse.OptionParser()
+    parser.add_option('-d', '--defconfigs', type='string',
+                      help='a file containing a list of defconfigs to move, '
+                      "one per line (for example 'snow_defconfig') "
+                      "or '-' to read from stdin")
 
-    Args:
-        line: Path or filename to match, e.g. 'configs/snow_defconfig' or
-            'k2*_defconfig'. If no directory is provided, 'configs/' is
-            prepended
 
-    Returns:
-        a list of matching defconfig files
+    (options, configs) = parser.parse_args()
+
+    # prefix the option name with CONFIG_ if missing
+    configs = [ config if config.startswith('CONFIG_') else 'CONFIG_' + config
+                for config in configs ]
+
+    defconfigs = get_matched_defconfigs(options.defconfigs)
+    for defconfig in defconfigs:
+        do_defconfig(defconfig)
+
+def add_one_config(defconfig, val):
+    defconfig_file = 'configs/' + defconfig
+    text_config = 'CONFIG_SPL_RELOC_TEXT_BASE=' + val + '\n'
+    with open(defconfig_file, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write('# CONFIG_SPL_SKIP_RELOCATE is not set\n' + text_config + content)
+
+def calculate_ref_plus_value(line):
+    """calculate CONFIG_SYS_INIT_L2_END="(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)"
+       line = "(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)"
     """
-    dirname = os.path.dirname(line)
-    if dirname:
-        pattern = line
-    else:
-        pattern = os.path.join('configs', line)
-    return glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+    config, ref = line.split('=')
+    ref = ref.rstrip()
+    ref = ref.strip('"()"')
+    value1, value2 = ref.split('+')
+    cmd = 'rg ' + value1 + ' ' + SPL_CONF_PATH
+    os.system(cmd)
+    cmd = 'rg ' + value2 + ' ' + SPL_CONF_PATH
+    os.system(cmd)
+    value1 = value1.strip()
+    value2 = value2.strip()
+    with open(SPL_CONF_PATH) as f:
+        lines = f.readlines()
+    for i, line in enumerate(lines):
+        if line.startswith(value1 + '='):
+            value1 = line.split('=')[1]
+            value1 = value1.strip()
+    for i, line in enumerate(lines):
+        if line.startswith(value2 + '='):
+            value2 = line.split('=')[1]
+            value2 = value2.strip()
+            value2 = value2.strip('"()"')
+    print "value1 + value2 = %s + %s" % (value1, value2)
+    print '--0x%x--' % (eval(value1) + eval(value2))
+    return (eval(value1) + eval(value2))
 
-def get_matched_defconfigs(defconfigs_file):
-    """Get all the defconfig files that match the patterns in a file.
-
-    Args:
-        defconfigs_file: File containing a list of defconfigs to process, or
-            '-' to read the list from stdin
-
-    Returns:
-        A list of paths to defconfig files, with no duplicates
+def calculate_ref_config_value(config):
+    """config = CONFIG_SYS_INIT_L2_END - 0x2000
     """
-    defconfigs = []
-    if defconfigs_file == '-':
-        fd = sys.stdin
-        defconfigs_file = 'stdin'
+    value1, value2 = config.split('-')
+    value1 = value1.strip()
+    value2 = value2.strip()
+    key_words = value1 + '='
+    cmd = 'rg ' + key_words + ' ' + SPL_CONF_PATH
+    os.system(cmd)
+    with open(SPL_CONF_PATH) as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if line.startswith(key_words):
+            value1 = calculate_ref_plus_value(line)
+            #add_one_config(defconfig)
+            break
     else:
-        fd = open(defconfigs_file)
-    for i, line in enumerate(fd):
-        line = line.strip()
-        if not line:
-            continue # skip blank lines silently
-        if ' ' in line:
-            line = line.split(' ')[0]  # handle 'git log' input
-        matched = get_matched_defconfig(line)
-        if not matched:
-            print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
-                                                 (defconfigs_file, i + 1, line)
+        print '%s not used' % config
+    return value1 - eval(value2)
 
-        defconfigs += matched
+def calculate_config_value(config_line):
+    print 'calculate %s' % config_line
+    config, value = config_line.split('=')
+    value = value.strip()
 
-    # use set() to drop multiple matching
-    return [ defconfig[len('configs') + 1:]  for defconfig in set(defconfigs) ]
+    if value.startswith('"'):
+        value = calculate_ref_config_value(value.strip('"()'))
+    else:
+        value = eval(value)
+    return    str(hex(value))
 
 def do_defconfig(defconfig):
     """Run 'make <board>_defconfig' to create the .config file."""
@@ -76,6 +113,20 @@ def do_defconfig(defconfig):
      #   print >> sys.stderr, "Error #%d when calling: %s" % (exit_code, " ".join(ccmd))
     os.system('make CROSS_COMPILE=powerpc-linux-gnu- KCONFIG_IGNORE_DUPLICATES=1 include/config/auto.conf')
     os.system('rg SPL_RELOC_TEXT_BASE spl/')
+
+    config = 'CONFIG_SPL_RELOC_TEXT_BASE'
+    start = config + '='
+    with open(SPL_CONF_PATH) as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if line.startswith(start):
+            val = calculate_config_value(line)
+            add_one_config(defconfig, val)
+            break
+    else:
+        print '%s not used' % config
+
 
 def main():
     parser = optparse.OptionParser()
