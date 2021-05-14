@@ -8,20 +8,20 @@ else
 	BASE=$(printf "%u" 0xFE040000)
 fi
 echo $SOC $BASE
-DSC=`expr $BASE + $((16#200))`
-OVL=`expr $BASE + $((16#600))`
-VP0=`expr $BASE + $((16#C00))`
-VP1=`expr $BASE + $((16#D00))`
-VP2=`expr $BASE + $((16#E00))`
-VP3=`expr $BASE + $((16#F00))`
-C0=`expr $BASE + $((16#1000))`
-C1=`expr $BASE + $((16#1200))`
-C2=`expr $BASE + $((16#1400))`
-C3=`expr $BASE + $((16#1600))`
-E0=`expr $BASE + $((16#1800))`
-E1=`expr $BASE + $((16#1A00))`
-S0=`expr $BASE + $((16#1C00))`
-S1=`expr $BASE + $((16#1E00))`
+DSC=`expr $BASE + $(printf "%u" 0x200)`
+OVL=`expr $BASE + $(printf "%u" 0x600)`
+VP0=`expr $BASE + $(printf "%u" 0xC00)`
+VP1=`expr $BASE + $(printf "%u" 0xD00)`
+VP2=`expr $BASE + $(printf "%u" 0xE00)`
+VP3=`expr $BASE + $(printf "%u" 0xF00)`
+C0=`expr $BASE + $(printf "%u" 0x1000)`
+C1=`expr $BASE + $(printf "%u" 0x1200)`
+C2=`expr $BASE + $(printf "%u" 0x1400)`
+C3=`expr $BASE + $(printf "%u" 0x1600)`
+E0=`expr $BASE + $(printf "%u" 0x1800)`
+E1=`expr $BASE + $(printf "%u" 0x1A00)`
+S0=`expr $BASE + $(printf "%u" 0x1C00)`
+S1=`expr $BASE + $(printf "%u" 0x1E00)`
 
 echo "SYS:"
 io -r -4 -l 0x100 $BASE
