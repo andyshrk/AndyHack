@@ -95,7 +95,7 @@ if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
 if  [ "$STAT" != "" ]; then
-	echo "Cluster0: "
+	echo "Cluster2: "
 	io -r -4 -l 0x130 $C2
 	print
 fi
@@ -105,7 +105,7 @@ if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
 if  [ "$STAT" != "" ]; then
-	echo "Cluster1: "
+	echo "Cluster3: "
 	io -r -4 -l 0x130 $C3
 	print
 fi
