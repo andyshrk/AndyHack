@@ -112,27 +112,37 @@ SMART0_BASE = 0x1C00
 SMART1_BASE = 0x1E00
 BLOCK_LEN = 0x100
 
-RK3568_LAYER_CNT = 6
-RK3588_LAYER_CNT = 8
-
 RK3588_VOP_VERSION = 0x40176786
 RK3568_VOP_VERSION = 0x40158023
 VOP_VERSION = 0x3588
+
+VP_CNTS = 2
+WIN_CNTS = 5
 
 REG_LEN = (SMART1_BASE + BLOCK_LEN) >> 2
 REGS = [0] * REG_LEN
 
 def parse_reg_val(base):
     index = base >> 2
-    return int(REGS[index], 16)
+    try:
+        return int(REGS[index], 16)
+    except :
+        print ("reg: 0x%08x is %s" % (base, REGS[index]))
+        return 0
 
 def parse_soc():
     global VOP_VERSION
+    global VP_CNTS
+    global WIN_CNTS
     ver_reg = parse_reg_val(4)
     if ver_reg == RK3588_VOP_VERSION:
         VOP_VERSION = 0x3588
+        VP_CNTS = 4
+        WIN_CNTS = 8
     elif ver_reg == RK3568_VOP_VERSION:
         VOP_VERSION = 0x3568
+        VP_CNTS = 3
+        WIN_CNTS = 6
     else:
         VOP_VERSION = 0
 
@@ -242,7 +252,7 @@ def parse_smart_win(id):
     else:
         win_id  = id - 2
     offset = win_id * 0x200
-    for i in range(3):
+    for i in range(4):
         area_offset = 0x30 * i
         win_ctrl = parse_reg_val(RK3568_ESMART0_REGION0_CTRL + offset + area_offset)
         if (win_ctrl & 0x1) == 0:
@@ -266,7 +276,7 @@ def parse_smart_win(id):
 
 def parse_cluster_win(id):
     offset = id * 0x200
-    for i in range(1):
+    for i in range(2):
         sub_offset = 0x80 * i
         win_ctrl = parse_reg_val(RK3568_CLUSTER0_WIN0_CTRL0 + offset + sub_offset)
         if (win_ctrl & 0x1) == 0:
@@ -302,13 +312,6 @@ def parse_cluster_win(id):
 def parse_video_port(id):
     offset = id * 0x100;
 
-    if VOP_VERSION == 0x3588:
-        win_cnt = RK3588_LAYER_CNT
-    elif VOP_VERSION == 0x3568:
-        win_cnt = RK3568_LAYER_CNT
-    else:
-        win_cnt = 0
-
     dsp_ctrl = parse_reg_val(RK3568_VP0_DSP_CTRL + offset)
     ovl_port_sel =  parse_reg_val(RK3568_OVL_PORT_SEL)
     ovl_layer_sel =  parse_reg_val(RK3568_OVL_LAYER_SEL)
@@ -317,7 +320,7 @@ def parse_video_port(id):
         print ("Video_Port%d: DISABLED" % id)
     else:
         print ("Video_Port%d: ACTIVE" % id)
-        for i in range(win_cnt):
+        for i in range(WIN_CNTS):
             if is_smart_win(i) == True:
                 shift = smart_win_port_sel_shift(i)
                 if (ovl_port_sel >> shift) & 0x3 == id:
@@ -333,9 +336,12 @@ def set_reg(line, base, offset):
     if index >= len(REGS):
         return
     line_base = '%08x:' % offset
+    if len(line.split(line_base)) < 2:
+        return
     regs4 =  line.split(line_base)[1]
     regs4 = regs4.strip()
     regs4 = regs4.split(' ')
+
     REGS[index], REGS[index + 1], REGS[index + 2], REGS[index + 3] = regs4[0], regs4[1], regs4[2], regs4[3]
     print ("%s %s %s %s" % (REGS[index], REGS[index + 1], REGS[index + 2], REGS[index +3]))
 
@@ -457,10 +463,8 @@ def main(argv):
                 set_reg(line, SMART1_BASE, offset)
                 offset += 0x10;
     parse_soc()
-    parse_video_port(0)
-    parse_video_port(1)
-    parse_video_port(2)
-    parse_video_port(3)
+    for i in range(VP_CNTS):
+        parse_video_port(i)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
