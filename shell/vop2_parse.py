@@ -136,7 +136,7 @@ def parse_soc():
     else:
         VOP_VERSION = 0
 
-    print "SOC: %x" % VOP_VERSION
+    print ("SOC: %x" % VOP_VERSION)
 
 def parse_smart_win_format(reg):
     val = (parse_reg_val(reg) >> 1) & 0x1f
@@ -257,11 +257,11 @@ def parse_smart_win(id):
             dst_w, dst_h = parse_win_rect(RK3568_ESMART0_REGION0_DSP_INFO + offset + area_offset)
             fb_size = stride * 4 * src_h
             fb_end = yrgb_mst + fb_size
-            print "Esmart%d-win%d:" %(win_id, i)
-            print "    format: %s" % format
-            print "    src: rect[%d x %d]" %(src_w, src_h)
-            print "    dst: rect[%d x %d]" %(dst_w, dst_h)
-            print "    buf[0]: addr: 0x%08x  end: 0x%08x pitch: %d" %(yrgb_mst, fb_end, stride * 4)
+            print ("Esmart%d-win%d:" %(win_id, i))
+            print ("    format: %s" % format)
+            print ("    src: rect[%d x %d]" %(src_w, src_h))
+            print ("    dst: rect[%d x %d]" %(dst_w, dst_h))
+            print ("    buf[0]: addr: 0x%08x  end: 0x%08x pitch: %d" %(yrgb_mst, fb_end, stride * 4))
 
 
 def parse_cluster_win(id):
@@ -292,11 +292,11 @@ def parse_cluster_win(id):
             fb_size = stride * 4 * src_h
             fb_end = yrgb_mst + fb_size
 
-            print "Cluster%d-win%d:" %(id, i)
-            print "    format: %s %s" % (format, afbc)
-            print "    src: rect[%d x %d]" %(src_w, src_h)
-            print "    dst: rect[%d x %d]" %(dst_w, dst_h)
-            print "    buf[0]: addr: 0x%08x  end: 0x%08x pitch: %d" %(yrgb_mst, fb_end, stride)
+            print ("Cluster%d-win%d:" %(id, i))
+            print ("    format: %s %s" % (format, afbc))
+            print ("    src: rect[%d x %d]" %(src_w, src_h))
+            print ("    dst: rect[%d x %d]" %(dst_w, dst_h))
+            print ("    buf[0]: addr: 0x%08x  end: 0x%08x pitch: %d" %(yrgb_mst, fb_end, stride))
 
 
 def parse_video_port(id):
@@ -314,9 +314,9 @@ def parse_video_port(id):
     ovl_layer_sel =  parse_reg_val(RK3568_OVL_LAYER_SEL)
 
     if dsp_ctrl & 0x80000000 == 0x80000000:
-        print "Video_Port%d: DISABLED" % id
+        print ("Video_Port%d: DISABLED" % id)
     else:
-        print "Video_Port%d: ACTIVE" % id
+        print ("Video_Port%d: ACTIVE" % id)
         for i in range(win_cnt):
             if is_smart_win(i) == True:
                 shift = smart_win_port_sel_shift(i)
@@ -337,7 +337,7 @@ def set_reg(line, base, offset):
     regs4 = regs4.strip()
     regs4 = regs4.split(' ')
     REGS[index], REGS[index + 1], REGS[index + 2], REGS[index + 3] = regs4[0], regs4[1], regs4[2], regs4[3]
-    print  REGS[index], REGS[index + 1], REGS[index + 2], REGS[index +3]
+    print ("%s %s %s %s" % (REGS[index], REGS[index + 1], REGS[index + 2], REGS[index +3]))
 
     return
 
@@ -349,64 +349,64 @@ def main(argv):
     block = 'SYSTEM'
     offset = 0
 
-    print 'reglen: ', len(REGS)
-    print 'logfile: ', logfile
+    print ('reglen: %d'  % len(REGS))
+    print ('logfile: %s' % logfile)
     with open(logfile,'r') as f:
         for line in f:
             if line.find('SYS:') != -1:
-                print 'SYSTEM:'
+                print ('SYSTEM:')
                 block = 'SYS'
                 offset = 0
             elif line.find('OVL:') != -1:
-                print 'OVL:'
+                print ('OVL:')
                 block = 'OVL'
                 offset = 0
             elif line.find('VP0:') != -1:
-                print 'VP0:'
+                print ('VP0:')
                 block = 'VP0'
                 offset = 0;
             elif line.find('VP1:') != -1:
-                print 'VP1:'
+                print ('VP1:')
                 block = 'VP1'
                 offset = 0;
             elif line.find('VP2:') != -1:
-                print 'VP2:'
+                print ('VP2:')
                 block = 'VP2'
                 offset = 0;
             elif line.find('VP3:') != -1:
-                print 'VP3:'
+                print ('VP3:')
                 block = 'VP3'
                 offset = 0;
             elif line.find('Cluster0:') != -1:
-                print 'Cluster0:'
+                print ('Cluster0:')
                 block = 'C0'
                 offset = 0;
             elif line.find('Cluster1:') != -1:
-                print 'Cluster1:'
+                print ('Cluster1:')
                 block = 'C1'
                 offset = 0;
             elif line.find('Cluster2:') != -1:
-                print 'Cluster2:'
+                print ('Cluster2:')
                 block = 'C2'
                 offset = 0;
             elif line.find('Cluster3:') != -1:
-                print 'Cluster3:'
+                print ('Cluster3:')
                 block = 'C3'
                 offset = 0;
             elif line.find('Esmart0:') != -1:
-                print 'Esmart0:'
+                print ('Esmart0:')
                 block = 'E0'
                 offset = 0;
             elif line.find('Esmart1:') != -1:
-                print 'Esmart1:'
+                print ('Esmart1:')
                 block = 'E1'
                 offset = 0;
             elif line.find('Smart0:') != -1:
-                print 'Esmart2:'
+                print ('Esmart2:')
                 block = 'E2'
                 offset = 0;
             elif line.find('Smart1:') != -1:
-                print 'Esmart3:'
+                print ('Esmart3:')
                 block = 'E3'
                 offset = 0;
             elif line.find('HDR:') != -1:
