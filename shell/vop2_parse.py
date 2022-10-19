@@ -119,11 +119,11 @@ RK3588_VOP_VERSION = 0x40176786
 RK3568_VOP_VERSION = 0x40158023
 VOP_VERSION = 0x3588
 
-REG_LEN = (SMART1_BASE + BLOCK_LEN) / 4
+REG_LEN = (SMART1_BASE + BLOCK_LEN) >> 2
 REGS = [0] * REG_LEN
 
 def parse_reg_val(base):
-    index = base / 4
+    index = base >> 2
     return int(REGS[index], 16)
 
 def parse_soc():
@@ -329,7 +329,7 @@ def parse_video_port(id):
 
 def set_reg(line, base, offset):
     global REGS
-    index = (base + offset) / 4
+    index = (base + offset) >> 2
     if index >= len(REGS):
         return
     line_base = '%08x:' % offset
