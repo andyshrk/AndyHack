@@ -2,7 +2,7 @@
 SOC=`cat /sys/kernel/debug/dri/0/state  | grep Cluster3`
 if  [ "$SOC" != "" ]; then
 	SOC="rk3588"
-	BASE=$(printf "%u" 0xF9000000)
+	BASE=$(printf "%u" 0xFDD90000)
 else
 	SOC="rk356x"
 	BASE=$(printf "%u" 0xFE040000)
@@ -22,6 +22,7 @@ E0=`expr $BASE + $(printf "%u" 0x1800)`
 E1=`expr $BASE + $(printf "%u" 0x1A00)`
 S0=`expr $BASE + $(printf "%u" 0x1C00)`
 S1=`expr $BASE + $(printf "%u" 0x1E00)`
+HDR=`expr $BASE + $(printf "%u" 0x2000)`
 
 echo "SYS:"
 io -r -4 -l 0x100 $BASE
@@ -29,8 +30,11 @@ print
 echo "OVL:"
 io -r -4 -l 0x100 $OVL
 print
+echo "HDR:"
+io -r -4 -l 0x40 $HDR
+print
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Video Port0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " video_port0"  -A 2 | grep "active=1"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -40,7 +44,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Video Port1" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " video_port1" -A 2 | grep "active=1"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -50,7 +54,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Video Port2" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " video_port2" -A 2 | grep "active=1"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -60,7 +64,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Video Port3" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " video_port3" -A 2 | grep "active=1"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -70,7 +74,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Cluster0-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " Cluster0-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -80,7 +84,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Cluster1-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " Cluster1-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -90,7 +94,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Cluster2-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " Cluster2-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -100,7 +104,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Cluster3-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " Cluster3-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -110,7 +114,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Esmart0-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " Esmart0-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -120,7 +124,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep "Esmart1-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep " Esmart1-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -130,7 +134,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep -E "Smart0-win0|Esmart2-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep -E " Smart0-win0| Esmart2-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
@@ -145,7 +149,7 @@ if  [ "$STAT" != "" ]; then
 	print
 fi
 
-STAT=`cat /sys/kernel/debug/dri/0/summary  | grep -E "Smart1-win0|Esmart3-win0" | grep "ACTIVE"`
+STAT=`cat /sys/kernel/debug/dri/0/state  | grep -E " Smart1-win0| Esmart3-win0" -A 2 | grep "fb=[1-9]"`
 if [ "$1" = "a" ]; then
 	STAT="ACTIVE"
 fi
