@@ -121,16 +121,29 @@ read_local()
 	fi
 }
 
+echo $0 $1
 while [ $j -lt $jmax ];
 do
-	read_remote
-	if [ $? != 0 ]; then
-		break
-	fi
+	if [ "$1" = "-r" ]; then
+		read_remote
+		if [ $? != 0 ]; then
+			break
+		fi
+	elif [ "$1" = "-l" ]; then
+		read_local
+		if [ $? != 0 ]; then
+			break
+		fi
+	else
+		read_remote
+		if [ $? != 0 ]; then
+			break
+		fi
 
-	read_local
-	if [ $? != 0 ]; then
-		break
+		read_local
+		if [ $? != 0 ]; then
+			break
+		fi
 	fi
 
 	j=$((j+1))
