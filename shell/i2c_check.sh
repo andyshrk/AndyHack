@@ -21,8 +21,9 @@ l_reg90="0000aaaa"
 
 j=1
 jmax=200000000
-while [ $j -lt $jmax ];
-do
+
+read_remote()
+{
 	cat /sys/kernel/debug/rkserdes/1-0055/remote0/registers/grf > /data/i2c_dump.txt
 	line=`grep -r 0x0000: /data/i2c_dump.txt`
 	r_reg00=`echo ${line} | awk '{print $2}'`
@@ -41,36 +42,40 @@ do
 	r_chipid=`echo ${line} | awk '{print $2}'`
 
 	if [ "$reg00" != "$r_reg00" ]; then
-		echo "remote reg00 i2c read err"
-		break
+		echo "Remote reg00 i2c read err"
+		return 1
 	elif [ "$reg04" != "$r_reg04" ]; then
-		echo "remote reg04 i2c read err"
-		break
+		echo "Remote reg04 i2c read err"
+		return 1
 	elif [ "$reg08" != "$r_reg08" ]; then
-		echo "remote reg08 i2c read err"
-		break
+		echo "Remote reg08 i2c read err"
+		return 1
 	elif [ "$reg10" != "$r_reg10" ]; then
-		echo "remote reg10 i2c read err"
-		break
+		echo "Remote reg10 i2c read err"
+		return 1
 	elif [ "$reg14" != "$r_reg14" ]; then
-		echo "remote reg14 i2c read err"
-		break
+		echo "Remote reg14 i2c read err"
+		return 1
 	elif [ "$reg20" != "$r_reg20" ]; then
-		echo "remote reg20 i2c read err"
-		break
+		echo "Remote reg20 i2c read err"
+		return 1
 	elif [ "$reg80" != "$r_reg80" ]; then
-		echo "remote reg80 i2c read err"
-		break
+		echo "Remote reg80 i2c read err"
+		return 1
 	elif [ "$reg90" != "$r_reg90" ]; then
-		echo "remote reg90 i2c read err"
-		break
+		echo "Remote reg90 i2c read err"
+		return 1
 	elif [ "$chipid" != "$r_chipid" ]; then
-		echo "remote chipid i2c read err"
-		break
+		echo "Remote chipid i2c read err"
+		return 1
 	else
 		echo "Remote Success: ${j}"
+		return 0
 	fi
+}
 
+read_local()
+{
 	cat /sys/kernel/debug/rkserdes/1-0055/local/registers/grf > /data/i2c_dump.txt
 	line=`grep -r 0x0000: /data/i2c_dump.txt`
 	r_reg00=`echo ${line} | awk '{print $2}'`
@@ -88,30 +93,44 @@ do
 
 	if [ "$l_reg00" != "$r_reg00" ]; then
 		echo "Local reg00 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg04" != "$r_reg04" ]; then
 		echo "Local reg04 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg08" != "$r_reg08" ]; then
 		echo "Local reg08 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg10" != "$r_reg10" ]; then
 		echo "Local reg10 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg14" != "$r_reg14" ]; then
 		echo "Local reg14 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg20" != "$r_reg20" ]; then
 		echo "Local reg20 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg80" != "$r_reg80" ]; then
 		echo "Local reg80 i2c read err"
-		break
+		return 1
 	elif [ "$l_reg90" != "$r_reg90" ]; then
 		echo "Local reg90 i2c read err"
-		break
+		return 1
 	else
 		echo "Local Success: ${j}"
+		return 0
+	fi
+}
+
+while [ $j -lt $jmax ];
+do
+	read_remote
+	if [ $? != 0 ]; then
+		break
+	fi
+
+	read_local
+	if [ $? != 0 ]; then
+		break
 	fi
 
 	j=$((j+1))
