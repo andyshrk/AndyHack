@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, getopt
+import re, sys, getopt
 
 SYS_BASE = 0
 OVL_BASE = 0x600
@@ -336,11 +336,16 @@ def set_reg(line, base, offset):
     global REGS
     index = (base + offset) >> 2
     if index >= len(REGS):
+        print("offset out of range:%d" % index)
         return
-    line_base = '%08x:' % offset
-    if len(line.split(line_base)) < 2:
+
+    # register base address pattern like: fdd90010
+    pattern = r'(?<=[0-9A-Fa-f]{8}:)'
+
+    if len(re.split(pattern,line)) < 2:
+        print("unknow line: %s " % (line))
         return
-    regs4 =  line.split(line_base)[1]
+    regs4 =  re.split(pattern, line)[1]
     regs4 = regs4.strip()
     regs4 = regs4.split(' ')
 
@@ -428,10 +433,20 @@ def main(argv):
                 offset = 0;
             elif line.find('Smart0:') != -1:
                 if DEBUG_MODE == True:
+                    print ('Smart0:')
+                block = 'E2'
+                offset = 0;
+            elif line.find('Esmart2:') != -1:
+                if DEBUG_MODE == True:
                     print ('Esmart2:')
                 block = 'E2'
                 offset = 0;
             elif line.find('Smart1:') != -1:
+                if DEBUG_MODE == True:
+                    print ('Smart1:')
+                block = 'E3'
+                offset = 0;
+            elif line.find('Esmart3:') != -1:
                 if DEBUG_MODE == True:
                     print ('Esmart3:')
                 block = 'E3'
