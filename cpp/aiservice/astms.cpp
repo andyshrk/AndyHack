@@ -3,6 +3,8 @@
 #include <iostream> // For print and user input
 #include <string> // For std::string data type
 #include <vector> // For std::vector
+#include <map> // For std::map
+
 using namespace std;
 #define _CR_SECURE_NO_WARNINGS 1
 //<Global scope>
@@ -57,6 +59,37 @@ private:
 	int counter;
 	float totalmoney;
 };
+
+class SystemUsage {
+	private:
+		std::map<std::string, int> tokensSpent;
+		int totalTokensSpent;
+		double totalMoneyPaid;
+
+	public:
+		SystemUsage() : totalTokensSpent(0), totalMoneyPaid(0.0) {}
+
+		void addUsage(const std::string& service, int tokens, double money) {
+			tokensSpent[service] += tokens;
+			totalTokensSpent += tokens;
+			totalMoneyPaid += money;
+		}
+
+		void displayUsageSummary() {
+			std::cout << "System Usage Summary:\n";
+			std::cout << "Tokens spent on each AI service:\n";
+
+			for (const auto& entry : tokensSpent) {
+				std::cout << "  " << entry.first << ": " << entry.second << " tokens\n";
+			}
+
+			std::cout << "Total tokens spent on all AI services: " << totalTokensSpent << " tokens\n";
+			std::cout << std::fixed << std::setprecision(2);
+			std::cout << "Total amount of money paid for buying tokens: $" << totalMoneyPaid << "\n";
+		}
+};
+
+
 // <Class Prototype>
 // <Class Prototype>
 // <Class Prototype>
@@ -338,65 +371,7 @@ int main()
 		}
 		//R7
 
-			class SystemUsage {
-			private:
-				std::map<std::string, int> tokensSpent;
-				int totalTokensSpent;
-				double totalMoneyPaid;
-
-			public:
-				SystemUsage() : totalTokensSpent(0), totalMoneyPaid(0.0) {}
-
-				void addUsage(const std::string& service, int tokens, double money) {
-					tokensSpent[service] += tokens;
-					totalTokensSpent += tokens;
-					totalMoneyPaid += money;
-				}
-
-				void displayUsageSummary() {
-					std::cout << "System Usage Summary:\n";
-					std::cout << "Tokens spent on each AI service:\n";
-
-					for (const auto& entry : tokensSpent) {
-						std::cout << "  " << entry.first << ": " << entry.second << " tokens\n";
-					}
-
-					std::cout << "Total tokens spent on all AI services: " << totalTokensSpent << " tokens\n";
-					std::cout << std::fixed << std::setprecision(2);
-					std::cout << "Total amount of money paid for buying tokens: $" << totalMoneyPaid << "\n";
-				}
-		};
-
-		void showMainMenu(SystemUsage& usage) {
-			int choice;
-			do {
-				std::cout << "\nMain Menu:\n";
-				std::cout << "1. Simulate usage\n";
-				std::cout << "2. Exit\n";
-				std::cout << "5. Show System Usage Summary\n";
-				std::cout << "Enter your choice: ";
-				std::cin >> choice;
-
-				switch (choice) {
-				case 1: {
-					std::string service;
-					int tokens;
-					double money;
-					std::cout << "Enter service name: ";
-					std::cin >> service;
-					std::cout << "Enter tokens spent: ";
-					std::cin >> tokens;
-					std::cout << "Enter money spent ($): ";
-					std::cin >> money;
-					usage.addUsage(service, tokens, money);
-					break;
-				}
-				case 5:
-					usage.displayUsageSummary();
-					break;
-				case 2:
-				}
-		// <DataLod == true PART>
+				// <DataLod == true PART>
 		// <DataLod == true PART>
 		// <DataLod == true PART>
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -613,6 +588,8 @@ bool MainExit()
 			return false;
 		}
 	} while (ExitConfirmation != "n" && ExitConfirmation != "N" && ExitConfirmation != "y" && ExitConfirmation != "Y");
+
+	return true;
 }
 
 void retry(int& retrytimes)
