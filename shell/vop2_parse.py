@@ -336,7 +336,7 @@ def set_reg(line, base, offset):
     global REGS
     index = (base + offset) >> 2
     if index >= len(REGS):
-        print("offset out of range:%d" % index)
+        print("offset out of range: 0x%x:0x%x" % (base >> 2, offset >> 2))
         return
 
     # register base address pattern like: fdd90010
@@ -349,7 +349,19 @@ def set_reg(line, base, offset):
     regs4 = regs4.strip()
     regs4 = regs4.split(' ')
 
-    REGS[index], REGS[index + 1], REGS[index + 2], REGS[index + 3] = regs4[0], regs4[1], regs4[2], regs4[3]
+    # 检查是否有足够的数据
+    if len(regs4) < 4:
+        print("Warning: Incomplete data in line: %s" % line)
+        # 填充缺失的数据为"00000000"
+        while len(regs4) < 4:
+            regs4.append("00000000")
+
+    # 单独赋值以避免类型错误
+    REGS[index] = regs4[0]
+    REGS[index + 1] = regs4[1]
+    REGS[index + 2] = regs4[2]
+    REGS[index + 3] = regs4[3]
+
     if DEBUG_MODE == True:
         print ("%s %s %s %s" % (REGS[index], REGS[index + 1], REGS[index + 2], REGS[index +3]))
 
