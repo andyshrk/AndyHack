@@ -110,7 +110,7 @@ ESMART0_BASE = 0x1800
 ESMART1_BASE = 0x1A00
 SMART0_BASE = 0x1C00
 SMART1_BASE = 0x1E00
-BLOCK_LEN = 0x100
+BLOCK_LEN = 0x200
 
 RK3588_VOP_VERSION = 0x40176786
 RK3568_VOP_VERSION = 0x40158023
@@ -336,7 +336,7 @@ def set_reg(line, base, offset):
     global REGS
     index = (base + offset) >> 2
     if index >= len(REGS):
-        print("offset out of range: 0x%x:0x%x" % (base >> 2, offset >> 2))
+        print("offset out of range: 0x%x:0x%x" % (base, offset))
         return
 
     # register base address pattern like: fdd90010
